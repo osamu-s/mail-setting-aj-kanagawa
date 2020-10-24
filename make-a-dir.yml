@@ -1,0 +1,45 @@
+---
+- name: make directory
+  file:
+    dest: "{{ account_dir }}"
+    state: directory
+    recurse: yes
+    mode: 0700
+
+- name: get stat
+  stat:
+    path: "{{ account_dir }}/maildir"
+    get_attributes: no
+    get_checksum: no
+    get_md5: no
+    get_mime: no
+  register: dir_p
+
+
+- name: make maildir
+  command: maildirmake maildir
+  args:
+    chdir: "{{ account_dir }}"
+  when: not (dir_p.stat.isdir is defined and dir_p.stat.isdir)
+
+- name: set mailfilter
+  copy:
+    dest: "{{ account_dir }}/.mailfilter"
+    content: |
+      cc "!staff-distribute@aj-kanagawa.org"
+      exit
+    mode: 0600
+              
+- name: set virusscan
+  file:
+    path: "{{ account_dir }}/.virusscan"
+    state: touch
+
+- name: set dirsize
+  copy:
+    dest: "{{ account_dir }}/maildir/maildirsize"
+    content: |
+      209715200S
+              0            0
+
+

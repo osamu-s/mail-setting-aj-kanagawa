@@ -1,0 +1,34 @@
+---
+- name: mail setting
+  hosts: sakura
+  gather_facts: no
+  vars:
+    maildirtop: /home/aj-kanagawa/MailBox
+  tasks:
+    - name: load variables
+      include_vars:
+        file: "files/{{ var_file }}"
+
+    - name: make brm directory list
+      set_fact:
+        dirs: "{{ dirs | default([]) + [brmdir] }}"
+      vars:
+        brmdir: "{{ maildirtop }}/{{ item }}-{{ year }}"
+      with_items: "{{ brms }}"
+
+    - name: append contact
+      set_fact:
+        dirs: "{{ dirs | default([]) + [contact] }}"
+      vars:
+        contact: "{{ maildirtop }}/contact{{ year }}"
+
+    - debug:
+        var: dirs
+
+    - name: make each directory
+      # include_tasks: make-a-dir.yml
+      debug:
+        msg: "{{ account_dir }}"
+      with_items: "{{ dirs }}"
+      loop_control:
+        loop_var: account_dir

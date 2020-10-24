@@ -1,0 +1,17 @@
+---
+- name: generate mail address
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - brm2020.yml
+  tasks:
+    - name: generate mail address
+      set_fact:
+        maddr: "{{ maddr|default([]) + [astr] }}"
+      vars:
+        astr: "{{ item }}-2019@aj-kanagawa.org"
+      with_items: "{{ brms }}"
+
+    - name: output
+      debug:
+        msg: "{{ maddr | join(', ') }}"
